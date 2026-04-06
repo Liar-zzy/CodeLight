@@ -85,14 +85,19 @@ struct CodeLightLiveActivity: Widget {
                     .padding(.horizontal, 4)
                 }
             } compactLeading: {
-                // Compact leading — just the pixel cat (phase indicator via animation)
-                PixelCharacterView(state: animationState(for: context.state.phase))
-                    .scaleEffect(0.45)
-                    .frame(width: 24, height: 22)
+                // Compact leading — pixel cat + project name
+                HStack(spacing: 3) {
+                    PixelCharacterView(state: animationState(for: context.state.phase))
+                        .scaleEffect(0.42)
+                        .frame(width: 22, height: 20)
+                    Text(context.state.projectName)
+                        .font(.system(size: 12, weight: .semibold))
+                        .lineLimit(1)
+                        .foregroundStyle(.white)
+                }
             } compactTrailing: {
-                // Compact trailing — rotating text (project → question → summary)
+                // Compact trailing — forced rotating status text
                 RotatingCompactText(state: context.state)
-                    .frame(maxWidth: 110)
             } minimal: {
                 // Minimal — just the cat face (very small)
                 PixelCharacterView(state: animationState(for: context.state.phase))
@@ -206,22 +211,19 @@ struct RotatingCompactText: View {
     private var messages: [String] {
         var items: [String] = []
 
-        // Tool/phase indicator takes priority when active
+        // Status indicator: tool name or phase label
         if let tool = state.toolName, !tool.isEmpty {
             items.append(tool)
         } else {
             items.append(phaseLabel(state.phase))
         }
 
-        // Project name
-        items.append(state.projectName)
-
-        // User question
+        // User question (truncated)
         if let q = state.lastUserMessage, !q.isEmpty {
             items.append("👤 \(q)")
         }
 
-        // Claude summary
+        // Claude summary (truncated)
         if let a = state.lastAssistantSummary, !a.isEmpty {
             items.append("✨ \(a)")
         }
@@ -230,14 +232,19 @@ struct RotatingCompactText: View {
     }
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 2)) { context in
-            let index = Int(context.date.timeIntervalSinceReferenceDate / 2) % max(messages.count, 1)
-            Text(messages[index])
+        // Build schedule dates at 2s intervals for rotation
+        let now = Date()
+        let dates: [Date] = (0..<120).map { now.addingTimeInterval(Double($0) * 2.0) }
+
+        TimelineView(.explicit(dates)) { context in
+            let secs = Int(context.date.timeIntervalSinceReferenceDate / 2.0)
+            let index = abs(secs) % max(messages.count, 1)
+            // Truncate long messages to fit compact view (roughly 8-10 Chinese chars)
+            let displayText = String(messages[index].prefix(12))
+            Text(displayText)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(phaseColor(state.phase))
                 .lineLimit(1)
-                .transition(.opacity)
-                .id(index)
         }
     }
 }
