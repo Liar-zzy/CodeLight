@@ -22,7 +22,7 @@ struct PairingView: View {
 
             Image(systemName: "qrcode.viewfinder")
                 .font(.system(size: 80))
-                .foregroundStyle(.blue)
+                .foregroundStyle(Theme.brand)
 
             Text(String(localized: "scan_qr_code"))
                 .font(.title)
@@ -52,8 +52,8 @@ struct PairingView: View {
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(.blue, in: RoundedRectangle(cornerRadius: 12))
-                    .foregroundStyle(.white)
+                    .background(Theme.brand, in: RoundedRectangle(cornerRadius: 12))
+                    .foregroundStyle(Theme.onBrand)
             }
             .padding(.horizontal, 40)
 

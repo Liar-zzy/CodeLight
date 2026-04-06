@@ -135,15 +135,22 @@ struct SessionListView: View {
                         }
                     }
                 } header: {
-                    HStack {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(Theme.brand)
+                            .frame(width: 6, height: 6)
                         Text(String(localized: "active"))
+                            .textCase(.uppercase)
+                            .tracking(0.6)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(Theme.textSecondary)
                         Spacer()
                         Text("\(active.count)")
-                            .font(.caption2)
-                            .padding(.horizontal, 6)
+                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(.green.opacity(0.2), in: Capsule())
-                            .foregroundStyle(.green)
+                            .background(Theme.brandSoft, in: Capsule())
+                            .foregroundStyle(Theme.brand)
                     }
                 }
             }
@@ -160,6 +167,9 @@ struct SessionListView: View {
                 }
             }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(Theme.bgPrimary)
         .refreshable {
             await refreshSessions()
         }
@@ -190,35 +200,42 @@ private struct SessionRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Status indicator
-            VStack {
+            // Status indicator: brand-lime dot for active, dim for idle.
+            ZStack {
+                if session.active {
+                    Circle()
+                        .fill(Theme.brand.opacity(0.25))
+                        .frame(width: 18, height: 18)
+                }
                 Circle()
-                    .fill(session.active ? .green : .gray.opacity(0.4))
-                    .frame(width: 10, height: 10)
+                    .fill(session.active ? Theme.brand : Theme.textTertiary)
+                    .frame(width: 8, height: 8)
             }
+            .frame(width: 18)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(session.metadata?.displayProjectName ?? session.tag)
-                    .font(.headline)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
                     .lineLimit(1)
 
                 if let title = session.metadata?.title, !title.isEmpty {
                     Text(title)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.textSecondary)
                         .lineLimit(1)
                 }
 
                 if let path = session.metadata?.path {
                     HStack(spacing: 4) {
                         Image(systemName: "folder")
-                            .font(.system(size: 9))
+                            .font(.system(size: 8))
                         Text(shortenPath(path))
-                            .font(.caption)
+                            .font(.system(size: 10, design: .monospaced))
                             .lineLimit(1)
                             .truncationMode(.middle)
                     }
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.textTertiary)
                 }
             }
 
@@ -226,21 +243,25 @@ private struct SessionRow: View {
 
             VStack(alignment: .trailing, spacing: 4) {
                 if let model = session.metadata?.model {
-                    Text(model.capitalized)
-                        .font(.system(size: 9, weight: .medium))
-                        .padding(.horizontal, 6)
+                    Text(model.uppercased())
+                        .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                        .tracking(0.5)
+                        .padding(.horizontal, 7)
                         .padding(.vertical, 2)
-                        .background(.blue.opacity(0.15), in: Capsule())
-                        .foregroundStyle(.blue)
+                        .background(Theme.brandSoft, in: Capsule())
+                        .overlay(Capsule().stroke(Theme.borderActive, lineWidth: 0.5))
+                        .foregroundStyle(Theme.brand)
                 }
 
                 if let lastTime = appState.lastMessageTimeBySession[session.id] {
                     Text(lastTime, style: .relative)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 10))
+                        .foregroundStyle(Theme.textTertiary)
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
+        .listRowBackground(Theme.bgPrimary)
+        .listRowSeparatorTint(Theme.divider)
     }
 }

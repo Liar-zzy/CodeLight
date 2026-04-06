@@ -165,6 +165,13 @@ final class SocketClient {
         return parseFetchResult(result)
     }
 
+    /// Fetch newer messages (delta sync — used as a fallback when socket events
+    /// are missed or arrive out of order).
+    func fetchNewerMessages(sessionId: String, afterSeq: Int, limit: Int = 100) async throws -> FetchResult {
+        let result = try await getJSON(path: "/v1/sessions/\(sessionId)/messages?after_seq=\(afterSeq)&limit=\(limit)")
+        return parseFetchResult(result)
+    }
+
     private func parseFetchResult(_ result: [String: Any]) -> FetchResult {
         let hasMore = result["hasMore"] as? Bool ?? false
         guard let messages = result["messages"] as? [[String: Any]] else {
@@ -206,6 +213,20 @@ final class SocketClient {
         if let token { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
         let (data, _) = try await URLSession.shared.data(for: request)
         return try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
+    }
+
+    /// Fetch the capability snapshot (slash commands, skills, MCP servers) uploaded
+    /// by CodeIsland for this device. Used by the phone's command picker.
+    func fetchCapabilities() async throws -> CapabilitySnapshot {
+        let url = URL(string: "\(serverUrl)/v1/capabilities")!
+        var request = URLRequest(url: url)
+        if let token { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        let (data, response) = try await URLSession.shared.data(for: request)
+        if let http = response as? HTTPURLResponse, http.statusCode == 404 {
+            throw NSError(domain: "CodeLight.Capabilities", code: 404,
+                          userInfo: [NSLocalizedDescriptionKey: "CodeIsland hasn't uploaded capabilities yet. Start CodeIsland on your Mac."])
+        }
+        return try JSONDecoder().decode(CapabilitySnapshot.self, from: data)
     }
 
     /// Upload an image blob. Returns the blobId on success.
