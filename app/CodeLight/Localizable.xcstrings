@@ -4,6 +4,16 @@
     "%lld" : {
 
     },
+    "%lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@"
+          }
+        }
+      }
+    },
     "1_year" : {
 
     },
@@ -516,6 +526,9 @@
         }
       }
     },
+    "jump_to_question" : {
+
+    },
     "language" : {
       "localizations" : {
         "en" : {
@@ -630,6 +643,9 @@
           }
         }
       }
+    },
+    "no_questions_yet" : {
+
     },
     "no_servers" : {
       "localizations" : {
@@ -838,6 +854,9 @@
           }
         }
       }
+    },
+    "replies" : {
+
     },
     "reset_connection" : {
       "localizations" : {
@@ -1097,6 +1116,9 @@
           }
         }
       }
+    },
+    "session_start" : {
+
     },
     "settings" : {
       "localizations" : {

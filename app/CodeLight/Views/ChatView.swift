@@ -215,10 +215,17 @@ struct ChatView: View {
     }
 
     private func startLiveActivity() {
+        // Delay to ensure app is fully visible (fixes "visibility" error on launch)
+        Task {
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s
+            await MainActor.run { doStartLiveActivity() }
+        }
+    }
+
+    private func doStartLiveActivity() {
         let session = appState.sessions.first { $0.id == sessionId }
         let projectName = session?.metadata?.title ?? "Session"
         let serverName = appState.currentServer?.name ?? "Server"
-        // Start with current state — will be updated by incoming messages
         LiveActivityManager.shared.update(
             sessionId: sessionId,
             phase: session?.active == true ? "thinking" : "idle",

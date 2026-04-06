@@ -67,11 +67,10 @@ final class AppState: ObservableObject {
             isConnected = true
             print("[AppState] Connected to \(server.url)")
 
-            // Auto-fetch sessions and start Live Activities for active ones
+            // Auto-fetch sessions (Live Activities are started when user opens a chat)
             do {
                 let fetched = try await client.fetchSessions()
                 self.sessions = fetched
-                startLiveActivitiesForActiveSessions()
             } catch {
                 print("[AppState] Failed to fetch sessions: \(error)")
             }
