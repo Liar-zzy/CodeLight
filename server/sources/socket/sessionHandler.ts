@@ -69,9 +69,11 @@ export function registerSessionHandler(
                             select: { metadata: true, deviceId: true },
                         });
                         let projectName = 'Session';
+                        let projectPath: string | null = null;
                         try {
                             const meta = JSON.parse(session?.metadata || '{}');
                             projectName = meta.title || 'Session';
+                            projectPath = meta.path || null;
                         } catch {}
 
                         // Count sessions for aggregate display
@@ -81,6 +83,7 @@ export function registerSessionHandler(
                         const contentState = {
                             activeSessionId: data.sid,
                             projectName,
+                            projectPath,
                             phase: parsed.phase || 'idle',
                             toolName: parsed.toolName || null,
                             lastUserMessage: parsed.lastUserMessage || null,

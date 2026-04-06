@@ -19,6 +19,7 @@ final class LiveActivityManager {
     func updateGlobal(
         activeSessionId: String,
         projectName: String,
+        projectPath: String?,
         phase: String,
         toolName: String?,
         lastUserMessage: String?,
@@ -30,6 +31,7 @@ final class LiveActivityManager {
         let state = CodeLightActivityAttributes.ContentState(
             activeSessionId: activeSessionId,
             projectName: projectName,
+            projectPath: projectPath,
             phase: phase,
             toolName: toolName,
             lastUserMessage: lastUserMessage,

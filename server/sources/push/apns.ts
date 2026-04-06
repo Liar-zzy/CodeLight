@@ -151,11 +151,15 @@ export async function sendPushToDevice(
  * Live Activity ContentState matching CodeLightActivityAttributes.ContentState.
  */
 export interface LiveActivityContentState {
+    activeSessionId: string;
+    projectName: string;
+    projectPath: string | null;
     phase: string;
     toolName: string | null;
-    projectName: string;
     lastUserMessage: string | null;
     lastAssistantSummary: string | null;
+    totalSessions: number;
+    activeSessions: number;
     startedAt: number; // unix timestamp
 }
 

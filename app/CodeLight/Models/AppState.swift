@@ -126,6 +126,7 @@ final class AppState: ObservableObject {
                 LiveActivityManager.shared.updateGlobal(
                     activeSessionId: session.id,
                     projectName: session.metadata?.title ?? "Session",
+                    projectPath: session.metadata?.path,
                     phase: phase,
                     toolName: toolName,
                     lastUserMessage: userMsg,
@@ -188,7 +189,9 @@ final class AppState: ObservableObject {
               let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let type = dict["type"] as? String else { return }
 
-        let projectName = sessions.first(where: { $0.id == sessionId })?.metadata?.title ?? "Session"
+        let sessionMeta = sessions.first(where: { $0.id == sessionId })?.metadata
+        let projectName = sessionMeta?.title ?? "Session"
+        let projectPath = sessionMeta?.path
 
         // Track user/assistant messages
         if type == "user", let text = dict["text"] as? String {
@@ -216,6 +219,7 @@ final class AppState: ObservableObject {
         LiveActivityManager.shared.updateGlobal(
             activeSessionId: sessionId,
             projectName: projectName,
+            projectPath: projectPath,
             phase: phase,
             toolName: toolName,
             lastUserMessage: lastUserMessageBySession[sessionId],

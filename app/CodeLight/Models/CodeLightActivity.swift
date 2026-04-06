@@ -7,6 +7,7 @@ struct CodeLightActivityAttributes: ActivityAttributes {
         // Active session being displayed (may switch as phase changes arrive)
         var activeSessionId: String
         var projectName: String
+        var projectPath: String?       // Working directory path
         var phase: String              // "thinking", "tool_running", "waiting_approval", "idle", "ended", "error"
         var toolName: String?
         var lastUserMessage: String?
