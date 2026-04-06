@@ -48,6 +48,45 @@ struct SessionListView: View {
         .navigationDestination(for: String.self) { sessionId in
             ChatView(sessionId: sessionId)
         }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    Button {
+                        // Reconnect
+                        Task {
+                            isLoading = true
+                            await appState.connectTo(server)
+                            if let socket = appState.socket {
+                                appState.sessions = (try? await socket.fetchSessions()) ?? []
+                            }
+                            isLoading = false
+                        }
+                    } label: {
+                        Label("Reconnect", systemImage: "arrow.clockwise")
+                    }
+
+                    Button {
+                        // Add new server (show pairing)
+                        appState.disconnect()
+                        appState.servers.removeAll()
+                        UserDefaults.standard.removeObject(forKey: "servers")
+                    } label: {
+                        Label("Scan QR Code", systemImage: "qrcode.viewfinder")
+                    }
+
+                    Divider()
+
+                    Button(role: .destructive) {
+                        appState.disconnect()
+                        appState.removeServer(server)
+                    } label: {
+                        Label("Disconnect", systemImage: "wifi.slash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
         .task {
             // Don't re-connect, RootView already did that
             if let socket = appState.socket {
