@@ -59,7 +59,8 @@ model Session {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  messages SessionMessage[]
+  messages         SessionMessage[]
+  remoteSessionMeta RemoteSessionMeta?
 
   @@unique([deviceId, tag])
   @@index([deviceId, updatedAt(sort: Desc)])
@@ -147,4 +148,26 @@ model LiveActivityToken {
 
   @@unique([deviceId, sessionId])
   @@index([sessionId])
+}
+
+/// Metadata for remote (SSH) Claude Code sessions forwarded by a relay daemon.
+/// 1:1 with Session. Only populated for sessions where sourceType = 'remote'.
+model RemoteSessionMeta {
+  id            String   @id @default(cuid())
+  sessionId     String   @unique
+  session       Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  host          String                // Remote hostname (e.g., "dgx-127")
+  user          String                // Remote username (e.g., "zhangzy")
+  port          Int      @default(22)
+  sshAlias      String?               // SSH config alias (e.g., "hk")
+  muxType       String                // "zellij" | "tmux"
+  muxSession    String                // Multiplexer session name
+  muxTabIndex   Int?
+  remoteCwd     String?               // Working directory on the remote server
+  relayDeviceId String                // Which relay device reported this session
+  hidden        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([relayDeviceId])
 }
